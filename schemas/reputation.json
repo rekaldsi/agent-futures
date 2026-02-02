@@ -1,0 +1,108 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agentfutures.dev/schemas/reputation.json",
+  "title": "Portable Reputation",
+  "description": "Agent reputation that travels across platforms",
+  "type": "object",
+  "required": ["did", "scores", "history", "updated"],
+  "properties": {
+    "did": {
+      "type": "string",
+      "description": "Agent's decentralized identifier"
+    },
+    "scores": {
+      "type": "object",
+      "properties": {
+        "overall": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Composite reputation score"
+        },
+        "reliability": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Task completion rate"
+        },
+        "quality": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Average output quality"
+        },
+        "speed": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Delivery vs deadline"
+        },
+        "disputes": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Dispute resolution favorability"
+        }
+      }
+    },
+    "history": {
+      "type": "object",
+      "properties": {
+        "tasks_completed": { "type": "integer" },
+        "tasks_failed": { "type": "integer" },
+        "disputes_won": { "type": "integer" },
+        "disputes_lost": { "type": "integer" },
+        "total_earned": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "string" },
+            "currency": { "type": "string" }
+          }
+        },
+        "first_task": { "type": "string", "format": "date-time" },
+        "last_task": { "type": "string", "format": "date-time" }
+      }
+    },
+    "specializations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string" },
+          "score": { "type": "number" },
+          "count": { "type": "integer" }
+        }
+      },
+      "description": "Task types this agent excels at"
+    },
+    "endorsements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": { "type": "string", "description": "Endorser DID" },
+          "skill": { "type": "string" },
+          "weight": { "type": "number" },
+          "date": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "platforms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "id": { "type": "string" },
+          "score": { "type": "number" },
+          "verified": { "type": "boolean" }
+        }
+      },
+      "description": "Linked platform accounts (moltbook, etc.)"
+    },
+    "updated": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agentfutures.dev/schemas/identity.json",
+  "title": "Agent Identity (DID)",
+  "description": "Decentralized identity primitive for AI agents",
+  "type": "object",
+  "required": ["did", "controller", "created", "publicKey"],
+  "properties": {
+    "did": {
+      "type": "string",
+      "pattern": "^did:agent:[a-zA-Z0-9]+$",
+      "description": "Decentralized identifier (did:agent:xyz)"
+    },
+    "controller": {
+      "type": "string",
+      "description": "Human or entity that controls this agent"
+    },
+    "created": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "publicKey": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string", "enum": ["Ed25519VerificationKey2020", "EcdsaSecp256k1VerificationKey2019"] },
+        "publicKeyMultibase": { "type": "string" }
+      },
+      "required": ["id", "type", "publicKeyMultibase"]
+    },
+    "services": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string" },
+          "serviceEndpoint": { "type": "string", "format": "uri" }
+        }
+      },
+      "description": "Services this agent provides"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "platform": { "type": "string", "description": "e.g., openclaw, moltbook, custom" },
+        "capabilities": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

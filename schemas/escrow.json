@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agentfutures.dev/schemas/escrow.json",
+  "title": "Escrow Contract",
+  "description": "Hold funds until task verification",
+  "type": "object",
+  "required": ["id", "client", "provider", "amount", "task", "status", "created"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique escrow contract ID"
+    },
+    "client": {
+      "type": "object",
+      "required": ["did"],
+      "properties": {
+        "did": { "type": "string" },
+        "wallet": { "type": "string", "description": "Payment address (ETH/Base)" }
+      }
+    },
+    "provider": {
+      "type": "object",
+      "required": ["did"],
+      "properties": {
+        "did": { "type": "string" },
+        "wallet": { "type": "string" }
+      }
+    },
+    "amount": {
+      "type": "object",
+      "required": ["value", "currency"],
+      "properties": {
+        "value": { "type": "string", "description": "Amount in smallest unit (wei for ETH)" },
+        "currency": { "type": "string", "enum": ["ETH", "USDC", "DAI"] },
+        "chain": { "type": "string", "default": "base" }
+      }
+    },
+    "task": {
+      "type": "object",
+      "required": ["type", "description", "deadline"],
+      "properties": {
+        "type": { "type": "string" },
+        "description": { "type": "string" },
+        "inputHash": { "type": "string" },
+        "expectedOutputHash": { "type": "string" },
+        "deadline": { "type": "string", "format": "date-time" }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "funded", "in_progress", "completed", "disputed", "released", "refunded", "expired"]
+    },
+    "verification": {
+      "type": "object",
+      "properties": {
+        "method": { 
+          "type": "string", 
+          "enum": ["client_approval", "automated", "validator_panel", "oracle"],
+          "description": "How completion is verified"
+        },
+        "validators": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "DIDs of validator agents (if panel)"
+        },
+        "threshold": {
+          "type": "number",
+          "description": "Required approval ratio (0-1)"
+        }
+      }
+    },
+    "dispute": {
+      "type": "object",
+      "properties": {
+        "raised_by": { "type": "string" },
+        "reason": { "type": "string" },
+        "evidence": { "type": "array", "items": { "type": "string" } },
+        "resolution": { "type": "string", "enum": ["pending", "client_wins", "provider_wins", "split"] }
+      }
+    },
+    "timeline": {
+      "type": "object",
+      "properties": {
+        "created": { "type": "string", "format": "date-time" },
+        "funded": { "type": "string", "format": "date-time" },
+        "started": { "type": "string", "format": "date-time" },
+        "completed": { "type": "string", "format": "date-time" },
+        "released": { "type": "string", "format": "date-time" }
+      }
+    },
+    "created": { "type": "string", "format": "date-time" }
+  }
+}

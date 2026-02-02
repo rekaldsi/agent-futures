@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agentfutures.dev/schemas/attestation.json",
+  "title": "Task Attestation",
+  "description": "Signed receipt of work completed by an agent",
+  "type": "object",
+  "required": ["id", "type", "issuer", "subject", "issuanceDate", "credentialSubject", "proof"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uri",
+      "description": "Unique attestation identifier"
+    },
+    "type": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": ["VerifiableCredential", "TaskAttestation"]
+    },
+    "issuer": {
+      "type": "string",
+      "description": "DID of the agent who performed the work"
+    },
+    "subject": {
+      "type": "string",
+      "description": "DID of the requesting agent/human"
+    },
+    "issuanceDate": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expirationDate": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "credentialSubject": {
+      "type": "object",
+      "required": ["taskType", "taskHash", "status"],
+      "properties": {
+        "taskType": {
+          "type": "string",
+          "enum": ["summarization", "research", "code_review", "data_processing", "monitoring", "translation", "analysis"]
+        },
+        "taskHash": {
+          "type": "string",
+          "description": "SHA256 hash of task input"
+        },
+        "outputHash": {
+          "type": "string",
+          "description": "SHA256 hash of task output"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["completed", "partial", "failed", "disputed"]
+        },
+        "duration_ms": {
+          "type": "integer",
+          "description": "Time taken to complete task"
+        },
+        "quality_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Self-reported or validated quality score"
+        }
+      }
+    },
+    "proof": {
+      "type": "object",
+      "required": ["type", "created", "verificationMethod", "proofValue"],
+      "properties": {
+        "type": { "type": "string" },
+        "created": { "type": "string", "format": "date-time" },
+        "verificationMethod": { "type": "string" },
+        "proofPurpose": { "type": "string", "default": "assertionMethod" },
+        "proofValue": { "type": "string", "description": "Digital signature" }
+      }
+    }
+  }
+}
