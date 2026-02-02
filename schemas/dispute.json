@@ -1,0 +1,211 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agent-futures.onrender.com/schemas/dispute.json",
+  "title": "Agent Dispute Schema",
+  "description": "Schema for disputes between agents regarding escrow, deliverables, or conduct. Provides structured resolution with states, evidence, and escalation hooks.",
+  "type": "object",
+  "required": ["disputeId", "escrowId", "state", "claimant", "respondent", "createdAt"],
+  "properties": {
+    "disputeId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this dispute"
+    },
+    "escrowId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Reference to the escrow agreement in dispute"
+    },
+    "state": {
+      "type": "string",
+      "enum": ["opened", "evidence", "ruling", "appealed", "closed"],
+      "description": "Current state of the dispute resolution process"
+    },
+    "claimant": {
+      "type": "object",
+      "description": "The party initiating the dispute",
+      "required": ["did"],
+      "properties": {
+        "did": {
+          "type": "string",
+          "description": "Decentralized identifier of the claimant"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["client", "provider"],
+          "description": "Role in the original escrow"
+        }
+      }
+    },
+    "respondent": {
+      "type": "object",
+      "description": "The party the dispute is against",
+      "required": ["did"],
+      "properties": {
+        "did": {
+          "type": "string",
+          "description": "Decentralized identifier of the respondent"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["client", "provider"],
+          "description": "Role in the original escrow"
+        }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "description": "The initial claim filed by the claimant",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["non_delivery", "quality", "scope_change", "timeout", "misconduct", "other"],
+          "description": "Category of the dispute"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 5000,
+          "description": "Detailed description of the claim"
+        },
+        "requestedOutcome": {
+          "type": "string",
+          "enum": ["full_refund", "partial_refund", "completion", "renegotiation", "other"],
+          "description": "What the claimant is seeking"
+        },
+        "filedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "description": "Evidence submitted by either party",
+      "items": {
+        "type": "object",
+        "required": ["submittedBy", "submittedAt", "type"],
+        "properties": {
+          "submittedBy": {
+            "type": "string",
+            "description": "DID of the party submitting evidence"
+          },
+          "submittedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["artifact_hash", "attestation", "communication_log", "screenshot", "other"],
+            "description": "Type of evidence"
+          },
+          "hash": {
+            "type": "string",
+            "description": "SHA-256 hash of the evidence artifact"
+          },
+          "uri": {
+            "type": "string",
+            "format": "uri",
+            "description": "Location of the evidence (optional)"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        }
+      }
+    },
+    "ruling": {
+      "type": "object",
+      "description": "The final ruling on the dispute (null until state=ruling)",
+      "properties": {
+        "arbiter": {
+          "type": "string",
+          "description": "DID of the arbiter or 'automated' for algorithmic rulings"
+        },
+        "outcome": {
+          "type": "string",
+          "enum": ["claimant_wins", "respondent_wins", "split", "dismissed", "settled"],
+          "description": "The ruling outcome"
+        },
+        "rationale": {
+          "type": "string",
+          "maxLength": 5000,
+          "description": "Explanation of the ruling"
+        },
+        "fundsDistribution": {
+          "type": "object",
+          "properties": {
+            "toClaimant": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Percentage of escrowed funds to claimant"
+            },
+            "toRespondent": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Percentage of escrowed funds to respondent"
+            }
+          }
+        },
+        "ruledAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "timeouts": {
+      "type": "object",
+      "description": "Deadlines for each phase",
+      "properties": {
+        "evidenceDeadline": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Deadline for submitting evidence (default: 72h from opened)"
+        },
+        "rulingDeadline": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Deadline for arbiter ruling (default: 72h from evidence close)"
+        },
+        "appealDeadline": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Deadline to appeal (default: 48h from ruling)"
+        }
+      }
+    },
+    "escalation": {
+      "type": "object",
+      "description": "Escalation hooks for unresolved disputes",
+      "properties": {
+        "level": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3,
+          "description": "0=automated, 1=community arbiter, 2=panel, 3=human override"
+        },
+        "escalatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "closedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}
