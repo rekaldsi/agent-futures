@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI for Art Directors</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            line-height: 1.6;
+        }
+        
+        .slide {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px 120px;
+            border-bottom: 1px solid #222;
+        }
+        
+        .slide-number {
+            position: absolute;
+            top: 40px;
+            right: 60px;
+            font-size: 14px;
+            color: #666;
+            font-weight: 300;
+        }
+        
+        h1 {
+            font-size: 72px;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #fff 0%, #888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        h2 {
+            font-size: 48px;
+            font-weight: 600;
+            margin-bottom: 40px;
+            color: #fff;
+        }
+        
+        h3 {
+            font-size: 28px;
+            font-weight: 500;
+            margin-bottom: 24px;
+            color: #f97316;
+        }
+        
+        .subtitle {
+            font-size: 28px;
+            color: #888;
+            font-weight: 300;
+        }
+        
+        p {
+            font-size: 24px;
+            color: #ccc;
+            max-width: 900px;
+            margin-bottom: 20px;
+        }
+        
+        .highlight {
+            color: #f97316;
+            font-weight: 600;
+        }
+        
+        ul {
+            list-style: none;
+            font-size: 24px;
+        }
+        
+        li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            color: #ccc;
+        }
+        
+        li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #f97316;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            margin-top: 40px;
+        }
+        
+        .card {
+            background: #161616;
+            border: 1px solid #333;
+            border-radius: 16px;
+            padding: 32px;
+        }
+        
+        .card h4 {
+            font-size: 22px;
+            margin-bottom: 16px;
+            color: #fff;
+        }
+        
+        .card p {
+            font-size: 18px;
+            color: #999;
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            margin-top: 40px;
+        }
+        
+        .comparison-col h4 {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .comparison-col.good h4 {
+            color: #22c55e;
+        }
+        
+        .comparison-col.bad h4 {
+            color: #ef4444;
+        }
+        
+        .big-quote {
+            font-size: 42px;
+            font-weight: 600;
+            font-style: italic;
+            color: #fff;
+            max-width: 1000px;
+            line-height: 1.4;
+        }
+        
+        .big-quote::before {
+            content: """;
+            font-size: 120px;
+            color: #f97316;
+            position: absolute;
+            margin-left: -60px;
+            margin-top: -40px;
+            opacity: 0.5;
+        }
+        
+        .steps {
+            counter-reset: step;
+            margin-top: 40px;
+        }
+        
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+        
+        .step-number {
+            background: #f97316;
+            color: #000;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            font-size: 22px;
+            color: #ccc;
+        }
+        
+        .code-block {
+            background: #161616;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 24px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 16px;
+            color: #888;
+            margin: 30px 0;
+            overflow-x: auto;
+        }
+        
+        .code-block .good {
+            color: #22c55e;
+        }
+        
+        .code-block .bad {
+            color: #ef4444;
+        }
+        
+        .final-slide {
+            text-align: center;
+            padding: 60px;
+        }
+        
+        .final-slide h1 {
+            font-size: 56px;
+            margin-bottom: 40px;
+        }
+        
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-top: 40px;
+        }
+        
+        .tool {
+            background: #161616;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+        }
+        
+        .tool-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        
+        .tool-use {
+            font-size: 14px;
+            color: #888;
+        }
+        
+        @media (max-width: 1024px) {
+            .slide {
+                padding: 40px;
+            }
+            h1 {
+                font-size: 48px;
+            }
+            h2 {
+                font-size: 36px;
+            }
+            .grid, .comparison {
+                grid-template-columns: 1fr;
+            }
+            .tool-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Slide 1: Title -->
+<section class="slide">
+    <span class="slide-number">01</span>
+    <h1>AI for Art Directors</h1>
+    <p class="subtitle">A Survival Guide (That's Actually Useful)</p>
+    <p style="margin-top: 60px; color: #666;">How to use the machines before they use you</p>
+</section>
+
+<!-- Slide 2: The Fear -->
+<section class="slide">
+    <span class="slide-number">02</span>
+    <h2>The Fear is Real</h2>
+    <ul>
+        <li>86% of creatives worry AI will impact their job (Adobe, 2025)</li>
+        <li>"AI-generated art wins photography contest" — headlines everywhere</li>
+        <li>Agencies cutting junior designer headcount</li>
+        <li>Clients asking "why can't AI just do this?"</li>
+    </ul>
+    <p style="margin-top: 40px; font-size: 28px; color: #f97316;">If you're nervous, you're paying attention.</p>
+</section>
+
+<!-- Slide 3: The Truth -->
+<section class="slide">
+    <span class="slide-number">03</span>
+    <h2>But Here's the Truth</h2>
+    <div class="comparison">
+        <div class="comparison-col">
+            <h4>AI does</h4>
+            <ul>
+                <li>Generate</li>
+                <li>Know patterns</li>
+                <li>Move fast</li>
+                <li>Scale infinitely</li>
+            </ul>
+        </div>
+        <div class="comparison-col good">
+            <h4>You do</h4>
+            <ul>
+                <li>Curate</li>
+                <li>Know context</li>
+                <li>Have taste</li>
+                <li>Build relationships</li>
+            </ul>
+        </div>
+    </div>
+    <p class="big-quote" style="margin-top: 60px;">Taste is the last moat.</p>
+</section>
+
+<!-- Slide 4: Image Gen Tools -->
+<section class="slide">
+    <span class="slide-number">04</span>
+    <h2>Image Generation</h2>
+    <div class="tool-grid">
+        <div class="tool">
+            <div class="tool-name">Midjourney</div>
+            <div class="tool-use">Best for concepts, mood boards, "what if" exploration</div>
+        </div>
+        <div class="tool">
+            <div class="tool-name">DALL-E 3</div>
+            <div class="tool-use">Best for specific prompts, text in images, ChatGPT integration</div>
+        </div>
+        <div class="tool">
+            <div class="tool-name">Adobe Firefly</div>
+            <div class="tool-use">Best for commercial safety, Photoshop/Illustrator integration</div>
+        </div>
+        <div class="tool">
+            <div class="tool-name">Stable Diffusion</div>
+            <div class="tool-use">Best for control freaks, custom models, local running</div>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 5: Video Tools -->
+<section class="slide">
+    <span class="slide-number">05</span>
+    <h2>Video & Motion</h2>
+    <div class="tool-grid">
+        <div class="tool">
+            <div class="tool-name">Runway Gen-3</div>
+            <div class="tool-use">Quick cuts, transitions, VFX, image-to-video</div>
+        </div>
+        <div class="tool">
+            <div class="tool-name">Pika</div>
+            <div class="tool-use">Stylized motion, character animation, lip sync</div>
+        </div>
+        <div class="tool">
+            <div class="tool-name">Sora</div>
+            <div class="tool-use">The "holy shit" moment — full scene generation</div>
+        </div>
+        <div class="tool">
+            <div class="tool-name">HeyGen</div>
+            <div class="tool-use">Talking head avatars, localization, presenter videos</div>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 6: Design Assist -->
+<section class="slide">
+    <span class="slide-number">06</span>
+    <h2>Design Assist</h2>
+    <div class="tool-grid">
+        <div class="tool">
+            <div class="tool-name">Figma AI</div>
+            <div class="tool-use">Layout suggestions, auto-complete, design systems</div>
+        </div>
+        <div class="tool">
+            <div class="tool-name">Adobe Sensei</div>
+            <div class="tool-use">Background removal, object selection, content-aware fill</div>
+        </div>
+        <div class="tool">
+            <div class="tool-name">Canva Magic</div>
+            <div class="tool-use">Quick social, templates, background removal</div>
+        </div>
+        <div class="tool">
+            <div class="tool-name">Magnific AI</div>
+            <div class="tool-use">Upscaling, enhancement, detail generation</div>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 7: Honest Assessment -->
+<section class="slide">
+    <span class="slide-number">07</span>
+    <h2>The Honest Assessment</h2>
+    <div class="comparison">
+        <div class="comparison-col good">
+            <h4>What AI Does Well</h4>
+            <ul>
+                <li>Volume — 100 directions in an hour</li>
+                <li>Speed — first draft in seconds</li>
+                <li>Variations — infinite permutations</li>
+                <li>Exploration — "what if?" without cost</li>
+            </ul>
+        </div>
+        <div class="comparison-col bad">
+            <h4>What AI Can't Do</h4>
+            <ul>
+                <li>Taste — knowing what's actually good</li>
+                <li>Context — why this client, this moment</li>
+                <li>Strategy — solving the real problem</li>
+                <li>Relationships — selling the idea</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 8: Where AI Fits -->
+<section class="slide">
+    <span class="slide-number">08</span>
+    <h2>Where AI Fits in Your Process</h2>
+    <div class="code-block">
+Brief → <span class="good">[AI: Reference gathering]</span> → Concept → <span class="good">[AI: Rapid exploration]</span> → Direction → <span class="good">[AI: Variation generation]</span> → Refinement → <span style="color:#fff">[Human: Final craft]</span>
+    </div>
+    <p>AI is your sketch pad, not your portfolio.</p>
+</section>
+
+<!-- Slide 9: Use Case 1 -->
+<section class="slide">
+    <span class="slide-number">09</span>
+    <h3>Use Case</h3>
+    <h2>Mood Boards in Minutes</h2>
+    <div class="comparison">
+        <div class="comparison-col bad">
+            <h4>Before</h4>
+            <p>2 hours pulling references from Pinterest, Behance, stock sites</p>
+        </div>
+        <div class="comparison-col good">
+            <h4>After</h4>
+            <p>15 minutes generating + curating AI concepts</p>
+        </div>
+    </div>
+    <p style="margin-top: 40px; color: #f97316; font-size: 28px;">Generate 20 directions, present 4. That's curation.</p>
+</section>
+
+<!-- Slide 10: Use Case 2 -->
+<section class="slide">
+    <span class="slide-number">10</span>
+    <h3>Use Case</h3>
+    <h2>Concept Exploration</h2>
+    <div class="comparison">
+        <div class="comparison-col bad">
+            <h4>Before</h4>
+            <p>3 concepts in a week</p>
+        </div>
+        <div class="comparison-col good">
+            <h4>After</h4>
+            <p>30 directions in a day, refined to 3</p>
+        </div>
+    </div>
+    <p style="margin-top: 40px;">Use AI to explore the edges of an idea before committing time to craft.</p>
+</section>
+
+<!-- Slide 11: Use Case 3 -->
+<section class="slide">
+    <span class="slide-number">11</span>
+    <h3>Use Case</h3>
+    <h2>Production Polish</h2>
+    <ul>
+        <li>Background extension for awkward crops</li>
+        <li>Resolution upscaling for that one low-res asset</li>
+        <li>Quick comps for client alignment</li>
+        <li>Asset generation for presentations</li>
+    </ul>
+    <p style="margin-top: 40px; color: #f97316;">Save the craft budget for what matters.</p>
+</section>
+
+<!-- Slide 12: Prompting -->
+<section class="slide">
+    <span class="slide-number">12</span>
+    <h2>Prompting is a Skill</h2>
+    <div class="code-block">
+<span class="bad">Bad:</span> "Make me a cool ad"
+
+<span class="good">Good:</span> "Editorial photography, single Toyota Camry, desert highway at golden hour, shot from low angle, dust particles in air, cinematic color grade, 35mm lens, no text"
+    </div>
+    <p><strong>Structure:</strong> Subject + Style + Environment + Technical + Constraints</p>
+</section>
+
+<!-- Slide 13: Your Edge -->
+<section class="slide">
+    <span class="slide-number">13</span>
+    <h2>The Art Director's Edge</h2>
+    <ul>
+        <li>You know what <span class="highlight">"good"</span> looks like</li>
+        <li>You understand <span class="highlight">brand systems</span></li>
+        <li>You can <span class="highlight">art direct AI</span> like a junior designer</li>
+        <li>You can <span class="highlight">sell the idea</span> to stakeholders</li>
+    </ul>
+    <p style="margin-top: 40px; font-size: 28px;">AI doesn't have 10,000 hours. You do.</p>
+</section>
+
+<!-- Slide 14: Ethics -->
+<section class="slide">
+    <span class="slide-number">14</span>
+    <h2>Ethical Guardrails</h2>
+    <ul>
+        <li>Don't claim AI work as hand-crafted</li>
+        <li>Don't train on others' work without consent</li>
+        <li>Disclose when appropriate (varies by client)</li>
+        <li>Copyright is still evolving — stay informed</li>
+    </ul>
+    <p style="margin-top: 40px; color: #888;">The rules are being written. Help write them.</p>
+</section>
+
+<!-- Slide 15: Start Here -->
+<section class="slide">
+    <span class="slide-number">15</span>
+    <h2>Start Here</h2>
+    <div class="steps">
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">Pick ONE tool (Midjourney recommended)</div>
+        </div>
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">Spend $30 and one weekend</div>
+        </div>
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">Recreate a past project with AI</div>
+        </div>
+        <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">Notice what works and what doesn't</div>
+        </div>
+        <div class="step">
+            <div class="step-number">5</div>
+            <div class="step-content">Share learnings with your team</div>
+        </div>
+    </div>
+</section>
+
+<!-- Slide 16: Close -->
+<section class="slide final-slide">
+    <span class="slide-number">16</span>
+    <p style="color: #888; font-size: 20px; margin-bottom: 40px;">The best art directors of 2030 won't be the ones who ignored AI.</p>
+    <h1>They'll be the ones who learned to conduct it.</h1>
+    <p style="margin-top: 60px; font-size: 28px; color: #f97316;">You're not competing with AI.<br>You're competing with ADs who use AI.</p>
+</section>
+
+<script>
+    // Simple keyboard navigation
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'ArrowRight') {
+            e.preventDefault();
+            currentSlide = Math.min(currentSlide + 1, slides.length - 1);
+            slides[currentSlide].scrollIntoView({ behavior: 'smooth' });
+        } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+            e.preventDefault();
+            currentSlide = Math.max(currentSlide - 1, 0);
+            slides[currentSlide].scrollIntoView({ behavior: 'smooth' });
+        }
+    });
+</script>
+
+</body>
+</html>
