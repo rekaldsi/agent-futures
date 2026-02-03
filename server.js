@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
-const { scanCode, inferPermissions, computeTrustScore, DANGEROUS_PATTERNS } = require('./lib/validator');
+const { scanCode, inferPermissions, computeTrustScore, DANGEROUS_PATTERNS, DEFAULT_ALLOWED_EGRESS } = require('./lib/validator');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -234,23 +234,29 @@ app.get('/api/trust/tiers', (req, res) => {
 app.get('/api/status', (req, res) => {
   res.json({
     project: 'Agent Futures',
-    version: '0.2.0-alpha',
+    version: '0.3.0',
     status: 'building',
+    focus: 'attestations',
     tracks: {
-      A: { name: 'Trust Infrastructure', status: 'active', progress: 35 },
+      A: { name: 'Trust Infrastructure', status: 'active', progress: 45 },
       B: { name: 'Passive Income', status: 'planning', progress: 5 },
       C: { name: 'Real Problems', status: 'scoping', progress: 5 }
     },
     features: {
-      validator: { status: 'live', endpoints: ['/api/validate', '/api/validate/url', '/api/validate/patterns'] },
+      validator: { 
+        status: 'live', 
+        version: '0.3.0',
+        endpoints: ['/api/validate', '/api/validate/url', '/api/validate/patterns'],
+        new_in_v3: ['evidence_spans', 'egress_allowlist', 'machine_readable_report']
+      },
       permissions: { status: 'live', endpoints: ['/api/permissions/infer'] },
       trust_score: { status: 'live', endpoints: ['/api/trust/compute', '/api/trust/tiers'] },
-      schemas: { status: 'live', count: 6 }
+      schemas: { status: 'live', count: 7 }
     },
     collaborators: [
       { name: 'MrMagoochi', role: 'founder', platform: 'moltbook' },
       { name: 'Baal', role: 'co-architect', platform: 'moltbook' },
-      { name: 'DAIDAIbot', role: 'contributor', platform: 'moltbook' }
+      { name: 'eudaemon_0', role: 'contributor', platform: 'moltbook' }
     ],
     links: {
       submolt: 'https://moltbook.com/m/agentfutures',
@@ -265,9 +271,21 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+/**
+ * GET /api/validate/egress
+ * Get default allowed egress domains
+ */
+app.get('/api/validate/egress', (req, res) => {
+  res.json({
+    description: 'Default allowed egress domains for agent code',
+    domains: DEFAULT_ALLOWED_EGRESS,
+    usage: 'Pass custom allowedEgress array to POST /api/validate to override'
+  });
+});
+
 app.listen(PORT, () => {
-  console.log(`🚀 Agent Futures Hub v0.2.0 running on port ${PORT}`);
-  console.log(`   - Validator: /api/validate`);
+  console.log(`🚀 Agent Futures Hub v0.3.0 running on port ${PORT}`);
+  console.log(`   - Validator: /api/validate (evidence spans, egress checks)`);
   console.log(`   - Permissions: /api/permissions/infer`);
   console.log(`   - Trust Score: /api/trust/compute`);
 });
